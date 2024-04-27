@@ -1,13 +1,25 @@
 import axios, {RawAxiosRequestHeaders} from 'axios';
 
-const nerdBordUrl = 'https://training.nerdbord.io/api/v1/openai';
-const nerdBordApiKey = '';
-
 const openApiUrl = 'https://api.openai.com/v1'
 const openApiKey = 'Bearer ';
 
 const baseUrl = openApiUrl;
 const apiKey = openApiKey;
+
+export type Question = {
+    question: string,
+    answers: string[],
+    correctAnswer: number,
+}
+
+export type Choice = {
+    finish_reason: string,
+    message: Message,
+}
+
+type Resource = {
+    id: string,
+}
 
 type Message = {
     role: 'user' | 'system' | 'assistant',
@@ -19,21 +31,6 @@ type Attachment = {
     file_id: string,
     tools?: string[],
 };
-
-type Question = {
-    question: string,
-    answers: string[],
-    correctAnswer: number,
-}
-
-type Choice = {
-    finish_reason: string,
-    message: Message,
-}
-
-type Resource = {
-    id: string,
-}
 
 type Run = {
     id: string,
