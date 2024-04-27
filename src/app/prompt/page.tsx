@@ -1,10 +1,9 @@
 "use client";
 
-import {useEffect, useState} from "react";
-import {Dialog} from "@headlessui/react";
-import {Bars3Icon, XMarkIcon} from "@heroicons/react/24/outline";
-import {Prompt} from "@/components/Prompt";
-import {ChatGpt} from "@/lib/chatgpt";
+import { useState } from "react";
+import { Dialog } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Prompt } from "@/components/Prompt";
 
 const navigation = [
     { name: "Quiz", href: "#" },
@@ -13,11 +12,6 @@ const navigation = [
 
 const Page = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-    useEffect(() => {
-        const chatGpt = new ChatGpt();
-        chatGpt.chat("Cześć");
-    }, []);
 
     return (
         <div className="bg-white">
