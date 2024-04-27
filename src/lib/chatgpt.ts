@@ -44,15 +44,17 @@ export async function generateQuiz(topic: string): Promise<Question[]> {
             ]`
         });
         const response = await chatGpt.sendMessage(`Temat quizu: ${topic}`);
-        console.debug(`Response was: ${response.message.content}`);
         const match = /(\[[\s\S]*])/g.exec(response.message.content);
         const json = match?.[1];
-        console.debug(`Extracted JSON: ${json}`);
         if (!json) {
             console.debug('Response did not contain JSON.');
             continue;
         }
+        try {
         return JSON.parse(json);
+        } catch (e) {
+            console.debug('Error while parsing JSON: ', e)
+        }
     }
 }
 

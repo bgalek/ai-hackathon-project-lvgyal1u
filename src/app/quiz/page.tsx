@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {Dialog} from "@headlessui/react";
 import {Bars3Icon, XMarkIcon} from "@heroicons/react/24/outline";
 import {Prompt} from "@/components/Prompt";
-import {ChatGpt} from "@/lib/chatgpt";
+import {generateQuiz} from "@/lib/chatgpt";
 
 const navigation = [
     { name: "Quiz", href: "#" },
@@ -15,8 +15,7 @@ const Page = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
-        const chatGpt = new ChatGpt();
-        chatGpt.chat("Cześć");
+        generateQuiz('Protisty').then((quiz) => console.log(quiz));        
     }, []);
 
     return (
