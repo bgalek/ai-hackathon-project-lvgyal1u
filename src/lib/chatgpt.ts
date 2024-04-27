@@ -1,5 +1,14 @@
 import axios, {RawAxiosRequestHeaders} from 'axios';
 
+const nerdBordUrl = 'https://training.nerdbord.io/api/v1/openai';
+const nerdBordApiKey = '';
+
+const openApiUrl = 'https://api.openai.com/v1'
+const openApiKey = 'Bearer ';
+
+const baseUrl = openApiUrl;
+const apiKey = openApiKey;
+
 type Message = {
     role: 'user' | 'system' | 'assistant',
     content: string,
@@ -29,8 +38,9 @@ export async function generateQuiz(topic: string): Promise<Question[]> {
             Jesteś botem generującym quizy. Użytkownik poda ci temat, a ty wygenerujesz quiz w postaci JSON.
             Każde pytanie powinno posiadać 4 możliwe odpowiedzi oraz poprawną odpowiedź.
             Każdy quiz powinien mieć dokładnie 10 pytań. Upewnij się, że twoja odpowiedź jest poprawnym JSONem.
+            Pamiętaj, że odpowiedzi są indeksowane od zera.
             Np. dla tematu "Zasady BHP", przykładowa odpowiedź to: 
-            [
+            { "quiz": [
                 {
                     "question": "Jakie są główne cele przestrzegania zasad BHP?",
                     "answers": [
@@ -41,17 +51,35 @@ export async function generateQuiz(topic: string): Promise<Question[]> {
                     ],
                     "correctAnswer": 3
                 }
-            ]`
+            ]}`
         });
-        const response = await chatGpt.sendMessage(`Temat quizu: ${topic}`);
-        const match = /(\[[\s\S]*])/g.exec(response.message.content);
-        const json = match?.[1];
-        if (!json) {
-            console.debug('Response did not contain JSON.');
-            continue;
-        }
+        const response = await chatGpt.sendMessage(`Temat quizu: ${topic}`, {json: true});
         try {
-        return JSON.parse(json);
+            let quiz = JSON.parse(response.message.content).quiz as Question[];
+
+            if (quiz.length < 10) {
+                console.debug(`Quiz contained less than 10 questions`);
+                continue;
+            }
+            quiz = quiz.slice(0, 10);
+
+            let areQuestionsValid = true;
+            for (const question of quiz) {
+                if (question.answers.length !== 4) {
+                    console.debug("Questions didn't had exactly 4 answers");
+                    areQuestionsValid = false;
+                    break;
+                }
+
+                if (question.correctAnswer < 0 || question.correctAnswer > 3) {
+                    console.debug('correctAnswer outside of permitted range');
+                    areQuestionsValid = false;
+                    break;
+                }
+            }
+            if (!areQuestionsValid) continue;
+
+            return quiz;
         } catch (e) {
             console.debug('Error while parsing JSON: ', e)
         }
@@ -61,15 +89,33 @@ export async function generateQuiz(topic: string): Promise<Question[]> {
 export class ChatGpt {
     messages: Message[] = [];
 
-    async sendMessage(message: string): Promise<Choice> {
+    async sendMessage(message: string, options: { json?: boolean, files?: File[] } = {}): Promise<Choice> {
         this.messages.push({role: 'user', content: message});
         console.log(this.messages);
-        const response = await axios.post('https://training.nerdbord.io/api/v1/openai/chat/completions', {
-            'messages': this.messages,
+
+        const promises: Promise<any>[] = [];
+        for (const file of options.files ?? []) {
+            const formData = new FormData();
+            formData.append('purpose', 'assistants');
+            formData.append('file', file, file.name);
+            promises.push(axios.post(`${baseUrl}/chat/v1/files`, formData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: apiKey,
+                } as RawAxiosRequestHeaders,
+            }));
+        }
+
+        await Promise.all(promises);
+
+        const response = await axios.post(`${baseUrl}/chat/completions`, {
+            model: 'gpt-4-turbo',
+            messages: this.messages,
+            response_format: options.json ? {type: 'json_object'} : undefined,
         }, {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: '0fb37792bba9668ad9f53ffc5b2624393f7886ff3bb764f243b1c7a838d98364406b3a3e481c8857f77f80d4539c31c8d1e248447a8c8a9642cb6b12128eafc9',
+                Authorization: apiKey,
             } as RawAxiosRequestHeaders,
         });
 
