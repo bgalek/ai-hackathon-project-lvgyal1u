@@ -21,7 +21,6 @@ export const CardSkeleton = ({ questionIndex }: { questionIndex: number }) => {
                     </div>
                     <div className="flex items-center">
                         <input
-                            onClick={() => {}}
                             id={`answer-${questionIndex}-2`}
                             name={`question-${questionIndex}`}
                             type="radio"
@@ -48,7 +47,6 @@ export const CardSkeleton = ({ questionIndex }: { questionIndex: number }) => {
                     </div>
                     <div className="flex items-center">
                         <input
-                            onClick={() => {}}
                             id={`answer-${questionIndex}-4`}
                             name={`question-${questionIndex}`}
                             type="radio"
