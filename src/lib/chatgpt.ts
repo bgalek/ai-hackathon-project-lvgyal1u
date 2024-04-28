@@ -89,7 +89,7 @@ export async function generateQuiz(topic?: string, files?: File[]): Promise<Ques
             Każde pytanie powinno posiadać 4 możliwe odpowiedzi oraz poprawną odpowiedź.
             Każdy quiz powinien mieć dokładnie 10 pytań. Upewnij się, że twoja odpowiedź jest poprawnym JSONem.
             Pamiętaj, że odpowiedzi są indeksowane od zera.
-            Np. dla tematu "Zasady BHP", przykładowa odpowiedź to: 
+            Przykładowa odpowiedź to: 
             { "quiz": [
                 {
                     "question": "Jakie są główne cele przestrzegania zasad BHP?",
