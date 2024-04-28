@@ -1,18 +1,22 @@
+"use client";
+
 import { Card } from "@/components/Card";
 import { CardSkeleton } from "@/components/CardSkeleton";
-import { OpenAI, Question } from "@/lib/chatgpt";
-import { ArrowPathIcon } from "@heroicons/react/20/solid";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Question, generateQuiz } from "@/lib/chatgpt";
+import { useParams, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
-const Page = async ({
-    searchParams,
-}: {
-    searchParams?: {
-        prompt?: string;
-    };
-}) => {
-    const cards: Question[] = await new OpenAI().generateQuiz(searchParams?.prompt ?? "");
+const Page = () => {
+    const [cards, setCards] = useState<Question[]>([]);
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams);
+        const prompt = params.get('prompt') ?? ''
+
+        generateQuiz(prompt).then(result => setCards(result));
+    }, [])
+    // const cards: Question[] = await generateQuiz(searchParams?.prompt ?? "");
     return (
         <div className="relative isolate overflow-hidden bg-slate-100 py-24 sm:py-32">
             <div
